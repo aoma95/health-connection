@@ -71,9 +71,15 @@
                                         <v-text-field v-model="user.password" :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'" @click:append="show = !show" :type="show ? 'text' : 'password'" label="Mot de passe" :rules="this.rules.password()" required></v-text-field>
                                     </v-flex>
                                 </v-layout>
-                                <v-layout mt-2 row justify-center="">
-                                    <v-flex xs8 md5 >
-                                        <v-btn block @click.stop.prevent="submit('login')">Se connecter</v-btn>
+                                <v-layout mt-2 row justify-space-around="">
+                                    <v-flex xs11 md3 >
+                                        <v-btn block @click.stop.prevent="submit('loginCitoyen')">Je suis un citoyen</v-btn>
+                                    </v-flex>
+                                    <v-flex xs11 md3 >
+                                        <v-btn block @click.stop.prevent="submit('loginMedecin')">Je suis un médecin</v-btn>
+                                    </v-flex>
+                                    <v-flex xs11 md3 >
+                                        <v-btn block @click.stop.prevent="submit('loginAdmin')">Je suis un admin</v-btn>
                                     </v-flex>
                                 </v-layout>
                             </v-form>
@@ -90,13 +96,14 @@
     import User from '../models/user';
     import {Rules} from "../module/rules";
     import PopupError from "../components/PopupError";
+    import store from "../store";
     export default {
         components:{PopupError},
         data(){
           return{
               valid: true,
               rules:new Rules(),
-              user:new User('',''),
+              user:new User('','', '', ''),
               show: false,
               show_c: false,
               contain:null,
@@ -121,11 +128,43 @@
                 }
             },
             register(){
-                //code register
+                store.dispatch('auth/register', this.user).then(
+                    resp => {
+                        console.log(resp);
+                    }).catch(error => {
+                        console.log(error);
+                });
             },
-            login(){
-                //code login
-            }
+            loginCitoyen(){
+                this.user.role = "citoyen";
+                store.dispatch('auth/login', this.user).then(
+                    resp => {
+                        console.log(resp);
+                        // Route tableau bord citoyen
+                    }).catch(error => {
+                    console.log(error);
+                });
+            },
+            loginMedecin(){
+                this.user.role = "medecin";
+                store.dispatch('authMedecin/login', this.user).then(
+                    resp => {
+                        console.log(resp);
+                        // Route tableau bord médecin
+                    }).catch(error => {
+                    console.log(error);
+                });
+            },
+            loginAdmin(){
+                this.user.role = "admin";
+                store.dispatch('authAdmin/login', this.user).then(
+                    resp => {
+                        console.log(resp);
+                        // Route tableau bord admin
+                    }).catch(error => {
+                    console.log(error);
+                });
+            },
         }
     }
 </script>

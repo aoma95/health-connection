@@ -1,4 +1,4 @@
-import AuthService from '../../services/medecin';
+import AuthService from '../../services/auth';
 
 const user = JSON.parse(localStorage.getItem('jwt'));
 const initialState = user
@@ -46,7 +46,6 @@ export const auth = {
         loginFailure(state) {
             state.status.loggedIn = false;
             state.user = null;
-            sessionStorage.removeItem('jwt');
         },
         logout(state) {
             state.status.loggedIn = false;

@@ -10,7 +10,7 @@ export const authMedecin = {
     state: initialState,
     actions: {
         login({ commit }, user) {
-            return AuthAgentService.login(user).then(
+            return AuthMedecinService.login(user).then(
                 user => {
                     commit('loginSuccess', user);
                     return Promise.resolve(user);
@@ -21,10 +21,6 @@ export const authMedecin = {
                 }
             );
         },
-        logout({ commit }) {
-            AuthAgentService.logout();
-            commit('logout');
-        }
     },
     mutations: {
         loginSuccess(state, user) {
@@ -36,9 +32,5 @@ export const authMedecin = {
             state.user = null;
             sessionStorage.removeItem('jwt');
         },
-        logout(state) {
-            state.status.loggedIn = false;
-            state.user = null;
-        }
     }
 };

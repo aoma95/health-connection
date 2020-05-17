@@ -21,10 +21,6 @@ export const authAdmin = {
                 }
             );
         },
-        logout({ commit }) {
-            AuthAdminService.logout();
-            commit('logout');
-        },
     },
     mutations: {
         loginSuccess(state, user) {
@@ -35,10 +31,6 @@ export const authAdmin = {
             state.status.loggedIn = false;
             state.user = null;
             sessionStorage.removeItem('jwt');
-        },
-        logout(state) {
-            state.status.loggedIn = false;
-            state.user = null;
         },
     }
 };
