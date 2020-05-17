@@ -38,6 +38,12 @@
                                     </v-flex>
                                 </v-layout>
                                 <v-layout mt-2 row justify-center="">
+                                    <v-flex xs11 md4>
+                                        <v-select v-model="user.role" label="Statut" :items="roles">
+                                        </v-select>
+                                    </v-flex>
+                                </v-layout>
+                                <v-layout mt-2 row justify-center="">
                                     <v-flex xs8 md5 >
                                         <v-btn block @click.stop.prevent="submit('register')">S'inscrire</v-btn>
                                     </v-flex>
@@ -96,6 +102,7 @@
               contain:null,
               error:false,
               message_error:null,
+              roles:['Citoyen', 'Médecin']
           }
         },
         methods : {
