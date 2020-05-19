@@ -41,15 +41,6 @@
     name:'App',
     data(){
       return{
-        auth:null,
-        paginate:null,
-        error_messages:null,
-        error:false,
-        agency_choix:null,
-        dialog: false,
-        dialog1:false,
-        agencies:[],
-        drawer:false,
       }
     },
     methods:{
