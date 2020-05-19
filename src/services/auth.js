@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL =`http://health-connection.local:81`;
+const API_URL =`http://192.168.160.25:81`;
 
 class AuthService {
     login(user) {
@@ -17,7 +17,7 @@ class AuthService {
             .post(API_URL + '?action=register', {
             identifiant: user.identifiant,
             password: user.password,
-            conf_password: user.conf_password,
+            c_password: user.c_password,
             role: user.role === "Médecin" ? "medecin" : "citoyen",
         });
     }

@@ -120,11 +120,17 @@
                 this.contain=page
             },
             submit(page){
-                if(page==='login'){
-                        this.login();
+                if(page==='loginCitoyen'){
+                    this.loginCitoyen();
+                }
+                if(page==='loginMedecin'){
+                    this.loginMedecin();
+                }
+                if(page==='loginAdmin'){
+                    this.loginAdmin();
                 }
                 if(page==='register'){
-                        this.register();
+                    this.register();
                 }
             },
             register(){
