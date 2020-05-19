@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Home from '../views/Home.vue';
+import MembreBord from '../views/MembreBord';
 Vue.use(VueRouter);
 
 export const routes= [
@@ -8,6 +9,11 @@ export const routes= [
     path: '/',
     name: 'Home',
     component: Home
+  },
+  {
+    path: '/bord/membre',
+    name: 'MembreBord',
+    component: MembreBord
   }
 ];
 
