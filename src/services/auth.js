@@ -1,6 +1,9 @@
 import axios from 'axios';
+import paho from 'paho-mqtt';
 
-const API_URL =`http://192.168.160.25:81`;
+const API_URL =`http://health-connection.local:81`;
+const org = 'mbrym4';
+const deviceType = 'iot-client';
 
 class AuthService {
     login(user) {
@@ -9,6 +12,21 @@ class AuthService {
                 identifiant: user.identifiant,
                 password: user.password,
                 role: user.role,
+            })
+            .then(response => {
+                console.log(response);
+                let clientId = 'd:' + org + ':' + deviceType + ':' + user.identifiant;
+                let client = new paho.Client(org + '.messaging.internetofthings.ibmcloud.com', 8883, clientId);
+
+                client.connect({
+                    onSuccess: function() {console.log('yes')},
+                    onFailure: function() {console.log('no')},
+                    userName: "use-token-auth",
+                    password: user.password,
+                    useSSL: true,
+                });
+                sessionStorage.setItem('user', JSON.stringify(user));
+                sessionStorage.setItem('client', JSON.stringify(client));
             });
     }
 
