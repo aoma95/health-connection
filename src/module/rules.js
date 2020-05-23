@@ -11,5 +11,17 @@ export class Rules {
             v => v == pass || 'Mot de passe pas identique',
         ]
     }
+    temperature(){
+        return[
+            v => !!v || 'Température obligatoire',
+            v => /^[+]?\d+(\.\d+)?$/.test(v) || 'Température invalide',
+        ]
+    }
+    postalCode(){
+        return[
+            v => !!v || 'Code postal obligatoire',
+            v => /^[0-9]{3,5}$/.test(v) || 'Code postal invalide',
+        ]
+    }
 }
 
