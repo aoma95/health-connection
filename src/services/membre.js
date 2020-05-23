@@ -17,13 +17,12 @@ class MembreService {
         client.connect({
             onSuccess: function () {
                 let payload = {
-                    "temperature" : temperature
-                }
+                    "t": temperature
+                };
                 let message = new paho.Message(JSON.stringify(payload));
-                message.destinationName = "temperature";
+                message.destinationName = "iot-2/evt/temperature/fmt/json";
 
                 try {
-                    client.subscribe("temperature");
                     client.send(message);
                     console.log('Temperature send');
                 } catch (e) {
