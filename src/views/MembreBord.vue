@@ -34,7 +34,8 @@
                     MembreService.pushTemperature(this.temperature);
                 }
                 if (value === 'postal_code') {
-                    console.log('Code postal : ' + this.postal_code)
+                    console.log('Code postal : ' + this.postal_code);
+                    MembreService.pushPostalCode(this.postal_code);
                 }
             }
         }

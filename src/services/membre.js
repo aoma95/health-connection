@@ -2,40 +2,38 @@ import paho from 'paho-mqtt';
 
 const org = 'mbrym4';
 const deviceType = 'iot-client';
+let client;
+let user;
 
 class MembreService {
 
-    pushTemperature(temperature) {
-        const user = JSON.parse(sessionStorage.getItem('user'));
-        console.log(user);
+    initConnection(topic, payload) {
+        // Get connected user
+        user = JSON.parse(sessionStorage.getItem('user'));
         const clientId = 'd:' + org + ':' + deviceType + ':' + user.identifiant;
-        const client = new paho.Client(org + '.messaging.internetofthings.ibmcloud.com', 8883, clientId);
+        client = new paho.Client(org + '.messaging.internetofthings.ibmcloud.com', 8883, clientId);
 
         client.onConnectionLost = this.onConnectionLost;
         client.onMessageArrived = this.onMessageArrived;
 
         client.connect({
             onSuccess: function () {
-                let payload = {
-                    "t": temperature
-                };
                 let message = new paho.Message(JSON.stringify(payload));
-                message.destinationName = "iot-2/evt/temperature/fmt/json";
+                message.destinationName = "iot-2/evt/"+ topic +"/fmt/json";
 
                 try {
                     client.send(message);
-                    console.log('Temperature send');
+                    console.log(topic + ' send');
                 } catch (e) {
                     console.log(e);
-                    console.log('Temperature not send');
+                    console.log(topic + ' not send');
                 }
             },
-            onFailure: function() {console.log('no')},
+            onFailure: function() {console.log('Connection failed')},
             userName: "use-token-auth",
             password: user.password,
             useSSL: true,
         });
-
     }
 
     onConnectionLost(responseObject) {
@@ -48,8 +46,18 @@ class MembreService {
         console.log("onMessageArrived:" + message.payloadString);
     }
 
-    pushPostalCode() {
+    pushTemperature(temperature) {
+        let payload = {
+            "t": temperature
+        };
+        this.initConnection("temperature", payload);
+    }
 
+    pushPostalCode(postal_code) {
+        let payload = {
+            "pc": postal_code
+        };
+        this.initConnection("postalCode", payload);
     }
 }
 export default new MembreService();
