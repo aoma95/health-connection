@@ -114,6 +114,7 @@ class CitoyenService {
             'min_power': meeting.min_power,
             'max_power': meeting.max_power,
             'description': meeting.description,
+            'health': ''
         };
         currentMeetings.push(newMeeting);
 

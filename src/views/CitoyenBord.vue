@@ -45,6 +45,8 @@
                             <td>{{ rencontre.min_power }}</td>
                             <td>{{ rencontre.max_power }}</td>
                             <td>{{ rencontre.description }}</td>
+                            <td v-if="rencontre.health !== ''">{{ rencontre.health }}</td>
+                            <td v-else>Non communiqué</td>
                         </tr>
                         </tbody>
                     </table>
