@@ -160,7 +160,7 @@
                 store.dispatch('auth/login', this.user).then(
                     resp => {
                         console.log(resp);
-                        this.$router.push('/bord/membre');
+                        this.$router.push('/bord/citoyen');
                     }).catch(error => {
                         console.log(error);
                         this.message_error = 'Impossible de vous connecter avec ces identifiants';

@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Home from '../views/Home.vue';
-import MembreBord from '../views/MembreBord';
+import CitoyenBord from '../views/CitoyenBord';
 Vue.use(VueRouter);
 
 export const routes= [
@@ -11,9 +11,9 @@ export const routes= [
     component: Home
   },
   {
-    path: '/bord/membre',
-    name: 'MembreBord',
-    component: MembreBord
+    path: '/bord/citoyen',
+    name: 'CitoyenBord',
+    component: CitoyenBord
   }
 ];
 

@@ -5,7 +5,7 @@ const deviceType = 'iot-client';
 let client;
 let user;
 
-class MembreService {
+class CitoyenService {
 
     initConnection(topic, payload) {
         // Get connected user
@@ -59,5 +59,16 @@ class MembreService {
         };
         this.initConnection("postalCode", payload);
     }
+
+    getRencontres() {
+        let rencontres = JSON.parse(localStorage.getItem('rencontres'));
+        if (rencontres !== null) {
+            return rencontres;
+        } else {
+            return [{
+                identifiant: 'Pas de rencontres disponibles'
+            }];
+        }
+    }
 }
-export default new MembreService();
+export default new CitoyenService();
