@@ -1,6 +1,20 @@
 <template>
     <v-layout row justify-center="">
         <v-container fluid>
+            <v-layout row justify-space-around="" class="mb-5">
+                <v-flex>
+                    <h1>Tableau de bord</h1>
+                </v-flex>
+            </v-layout>
+
+            <v-divider class="my-5"></v-divider>
+
+            <v-layout row justify-space-around="" class="mb-5">
+                <v-flex>
+                    <h2>Mises à jour</h2>
+                </v-flex>
+            </v-layout>
+
             <v-layout row justify-space-around="">
                 <v-flex xs8 md3>
                     <v-form v-model="isTemperatureFormValid">
@@ -20,18 +34,26 @@
                 </v-flex>
             </v-layout>
 
+            <v-divider class="my-5"></v-divider>
+
+            <v-layout row justify-space-around="" class="mb-5">
+                <v-flex>
+                    <h2>Rencontres</h2>
+                </v-flex>
+            </v-layout>
+
             <v-layout row justify-space-around="" class="mt-5">
-                <v-flex xs-8 md5>
-                    <table>
+                <v-flex xs-8 md10>
+                    <table class="table">
                         <thead>
                         <tr>
-                            <th>Identifiant</th>
-                            <th>Date</th>
-                            <th>Heure</th>
-                            <th>Puissance Min</th>
-                            <th>Puissance Max</th>
-                            <th>Description</th>
-                            <th>Etat de santé</th>
+                            <th scope="col">Identifiant</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Heure</th>
+                            <th scope="col">Puissance Min</th>
+                            <th scope="col">Puissance Max</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">Etat de santé</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -51,7 +73,7 @@
                         </tbody>
                     </table>
                 </v-flex>
-                <v-flex xs-8 md5>
+                <v-flex xs-8 md10>
                     <v-form v-model="isRencontreFormValid">
                         <v-layout row wrap justify-space-around="">
                             <v-flex mt-2 md3>
