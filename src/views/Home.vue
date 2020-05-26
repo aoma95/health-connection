@@ -89,6 +89,7 @@
             </v-row>
         </v-container>
         <popup-error :error="error" :message_error="message_error" v-on:ranger_alerte="rangerAlerte"></popup-error>
+        <popup-success :success="success" :message_success="message_success" v-on:ranger_alerte="rangerAlerteSuccess"></popup-success>
     </v-layout>
 </template>
 
@@ -96,9 +97,13 @@
     import User from '../models/user';
     import {Rules} from "../module/rules";
     import PopupError from "../components/PopupError";
+    import PopupSuccess from "../components/PopupSuccess";
     import store from "../store";
     export default {
-        components:{PopupError},
+        components:{
+            PopupError,
+            PopupSuccess
+        },
         data(){
           return{
               valid: true,
@@ -107,14 +112,19 @@
               show: false,
               show_c: false,
               contain:null,
+              success:false,
               error:false,
               message_error:null,
+              message_success:null,
               roles:['Citoyen', 'Médecin']
           }
         },
         methods : {
             rangerAlerte(){
                 this.error=false
+            },
+            rangerAlerteSuccess(){
+                this.success = false;
             },
             swap(page){
                 this.contain=page
@@ -137,8 +147,12 @@
                 store.dispatch('auth/register', this.user).then(
                     resp => {
                         console.log(resp);
+                        this.message_success = 'Votre inscription est finalisée. Nous vous invitons à vous connecter !';
+                        this.success = true;
                     }).catch(error => {
                         console.log(error);
+                        this.message_error = 'Impossible de vous inscrire avec ses informations données';
+                        this.error = true;
                 });
             },
             loginCitoyen(){
@@ -146,9 +160,11 @@
                 store.dispatch('auth/login', this.user).then(
                     resp => {
                         console.log(resp);
-                        // Route tableau bord citoyen
+                        this.$router.push('/bord/citoyen');
                     }).catch(error => {
-                    console.log(error);
+                        console.log(error);
+                        this.message_error = 'Impossible de vous connecter avec ces identifiants';
+                        this.error = true;
                 });
             },
             loginMedecin(){
@@ -158,7 +174,9 @@
                         console.log(resp);
                         // Route tableau bord médecin
                     }).catch(error => {
-                    console.log(error);
+                        console.log(error);
+                        this.message_error = 'Impossible de vous connecter avec ces identifiants';
+                        this.error = true;
                 });
             },
             loginAdmin(){
@@ -168,7 +186,9 @@
                         console.log(resp);
                         // Route tableau bord admin
                     }).catch(error => {
-                    console.log(error);
+                        console.log(error);
+                        this.message_error = 'Impossible de vous connecter avec ces identifiants';
+                        this.error = true;
                 });
             },
         }
