@@ -60,11 +60,37 @@ class CitoyenService {
         this.initConnection("postalCode", payload);
     }
 
-    getRencontres() {
-        let rencontres = JSON.parse(localStorage.getItem('rencontres'));
+    pushMeeting(meeting){
+        let currentMeetings = JSON.parse(localStorage.getItem('meetings'));
+
+        if (currentMeetings === null) {
+            console.log('Récupération lors ajout null');
+            currentMeetings = [];
+        }
+
+        let today = new Date();
+        let date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+        let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+
+        let newMeeting = {
+            'identifiant': meeting.identifiant,
+            'date': date,
+            'time': time,
+            'min_power': meeting.min_power,
+            'max_power': meeting.max_power,
+            'description': meeting.description,
+        };
+        currentMeetings.push(newMeeting);
+
+        localStorage.setItem('meetings', JSON.stringify(currentMeetings));
+    }
+
+    getMeetings() {
+        let rencontres = JSON.parse(localStorage.getItem('meetings'));
         if (rencontres !== null) {
             return rencontres;
         } else {
+            console.log('Récupération null');
             return [{
                 identifiant: 'Pas de rencontres disponibles'
             }];

@@ -35,8 +35,16 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr v-for="rencontre in rencontres" :key="rencontre.identifiant">
-                            <td v-if="rencontre.identifiant === 'Pas de rencontres disponibles'" colspan="7">{{ rencontre.identifiant }}</td>
+                        <tr v-if="rencontres[0].identifiant === 'Pas de rencontres disponibles'">
+                            <td colspan="7">{{ rencontres[0].identifiant }}</td>
+                        </tr>
+                        <tr v-else v-for="rencontre in rencontres" :key="rencontre.identifiant">
+                            <td>{{ rencontre.identifiant }}</td>
+                            <td>{{ rencontre.date }}</td>
+                            <td>{{ rencontre.time }}</td>
+                            <td>{{ rencontre.min_power }}</td>
+                            <td>{{ rencontre.max_power }}</td>
+                            <td>{{ rencontre.description }}</td>
                         </tr>
                         </tbody>
                     </table>
@@ -93,7 +101,7 @@
             }
         },
         created:function () {
-            this.rencontres = CitoyenService.getRencontres();
+            this.rencontres = CitoyenService.getMeetings();
         },
         methods: {
             submit(value) {
@@ -104,7 +112,9 @@
                     CitoyenService.pushPostalCode(this.postal_code);
                 }
                 if (value === 'meeting') {
-                    console.log(this.meeting);
+                    CitoyenService.pushMeeting(this.meeting);
+                    // Refresh meetings
+                    this.rencontres = CitoyenService.getMeetings();
                 }
             },
             updateGPS() {
