@@ -100,6 +100,8 @@
                 </v-flex>
             </v-layout>
         </v-container>
+        <popup-error :error="error" :message_error="message_error" v-on:ranger_alerte="rangerAlerte"></popup-error>
+        <popup-success :success="success" :message_success="message_success" v-on:ranger_alerte="rangerAlerteSuccess"></popup-success>
     </v-layout>
 </template>
 
@@ -107,9 +109,12 @@
     import { Rules } from "../module/rules";
     import CitoyenService from '../services/citoyen';
     import Meeting from "../models/meeting";
+    import PopupError from "../components/PopupError";
+    import PopupSuccess from "../components/PopupSuccess";
     export default {
         components: {
-
+            PopupError,
+            PopupSuccess
         },
         data(){
             return {
@@ -122,21 +127,37 @@
                 isGPS: false,
                 rencontres: null,
                 meeting: new Meeting('', '', '', '', '', ''),
+                success:false,
+                error:false,
+                message_error:null,
+                message_success:null,
             }
         },
         created:function () {
             this.rencontres = CitoyenService.getMeetings();
         },
         methods: {
+            rangerAlerte(){
+                this.error = false;
+            },
+            rangerAlerteSuccess(){
+                this.success = false;
+            },
             submit(value) {
                 if (value === 'temperature') {
                     CitoyenService.pushTemperature(this.temperature);
+                    this.message_success = 'Votre température a été envoyée avec succès !';
+                    this.success = true;
                 }
                 if (value === 'postal_code') {
                     CitoyenService.pushPostalCode(this.postal_code);
+                    this.message_success = 'Votre code postal a été envoyé avec succès !';
+                    this.success = true;
                 }
                 if (value === 'meeting') {
                     CitoyenService.pushMeeting(this.meeting);
+                    this.message_success = 'Votre rencontre a été ajoutée avec succès !';
+                    this.success = true;
                     // Refresh meetings
                     this.rencontres = CitoyenService.getMeetings();
                 }
