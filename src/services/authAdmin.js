@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL =`http://health-connection.local:81`;
+const API_URL =`http://192.168.0.33:84`;
 
 class AuthAdminService {
     login(user) {

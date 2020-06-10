@@ -172,7 +172,7 @@
                 store.dispatch('authMedecin/login', this.user).then(
                     resp => {
                         console.log(resp);
-                        // Route tableau bord médecin
+                        this.$router.push('/bord/medecin');
                     }).catch(error => {
                         console.log(error);
                         this.message_error = 'Impossible de vous connecter avec ces identifiants';

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import paho from 'paho-mqtt';
 
-const API_URL =`http://health-connection.local:81`;
+const API_URL =`http://192.168.0.33:84`;
 const org = 'mbrym4';
 const deviceType = 'iot-client';
 
