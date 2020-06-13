@@ -1,7 +1,7 @@
 import axios from 'axios';
 import paho from 'paho-mqtt';
 
-const API_URL =`http://192.168.0.33:84`;
+const API_URL =`http://192.168.160.25:81`;
 const org = 'mbrym4';
 const deviceType = 'iot-client';
 

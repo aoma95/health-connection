@@ -5,7 +5,9 @@ const deviceType = 'iot-client';
 const apiKey = 'a-mbrym4-rdf3lojgwv';
 const apiToken = '5jq*9Dca6UBOQQhQpG';
 let client;
-let user;
+
+// Get identified user
+const user = JSON.parse(sessionStorage.getItem('user'));
 
 class CitoyenService {
 
@@ -16,8 +18,6 @@ class CitoyenService {
      * @param payload
      */
     initConnection(topic, payload) {
-        // Get identified user
-        user = JSON.parse(sessionStorage.getItem('user'));
         // Create client
         const clientId = 'd:' + org + ':' + deviceType + ':' + user.identifiant;
         client = new paho.Client(org + '.messaging.internetofthings.ibmcloud.com', 8883, clientId);
@@ -96,7 +96,7 @@ class CitoyenService {
      * @param meeting
      */
     pushMeeting(meeting){
-        let currentMeetings = JSON.parse(localStorage.getItem('meetings'));
+        let currentMeetings = JSON.parse(localStorage.getItem(user.identifiant));
 
         if (currentMeetings === null) {
             console.log('Récupération lors ajout null');
@@ -118,7 +118,7 @@ class CitoyenService {
         };
         currentMeetings.push(newMeeting);
 
-        localStorage.setItem('meetings', JSON.stringify(currentMeetings));
+        localStorage.setItem(user.identifiant, JSON.stringify(currentMeetings));
     }
 
     /**
@@ -127,7 +127,7 @@ class CitoyenService {
      * @returns {{identifiant: string}[]|any}
      */
     getMeetings() {
-        let rencontres = JSON.parse(localStorage.getItem('meetings'));
+        let rencontres = JSON.parse(localStorage.getItem(user.identifiant));
         if (rencontres !== null) {
             this.getHealth(rencontres);
             return rencontres;
