@@ -1,34 +1,71 @@
 import paho from 'paho-mqtt';
 const org = 'mbrym4';
 const deviceType = 'iot-client';
-const apiKey = 'a-mbrym4-rdf3lojgwv';
-const apiToken = '5jq*9Dca6UBOQQhQpG';
+const apiKey = 'a-mbrym4-5wqfprmqaw';
+const apiToken = '?nl*lfM5jdMKDp@1w8';
 let client;
-let user;
+
+// Get identified user
+const user = JSON.parse(sessionStorage.getItem('user'));
 
 class MedecinService {
 
     /**
-     * Connection to publish
+     * Store a patient to local storage
      *
-     * @param topic
-     * @param payload
+     * @param identifiant
      */
-    initConnection(topic, payload) {
-        // Get identified user
-        user = JSON.parse(sessionStorage.getItem('user'));
-        // Create client
-        const clientId = 'd:' + org + ':' + deviceType + ':' + user.identifiant;
+    addPatient(identifiant) {
+        let currentPatients = JSON.parse(localStorage.getItem(user.identifiant));
+
+        if (currentPatients === null) {
+            console.log('Récupération lors ajout null');
+            currentPatients = [];
+        }
+
+        let newPatient = {
+            'identifiant': identifiant,
+            'temperature': null,
+            'health': null
+        }
+        currentPatients.push(newPatient);
+
+        localStorage.setItem(user.identifiant, JSON.stringify(currentPatients));
+    }
+
+    /**
+     * Get all registered patients in local storage
+     *
+     * @returns {{identifiant: string}[]|any}
+     */
+    getPatients() {
+        let patients = JSON.parse(localStorage.getItem(user.identifiant));
+        if (patients !== null) {
+            return patients;
+        } else {
+            console.log('Récupération null');
+            return [{
+                identifiant: 'Pas de patients enregistrés'
+            }];
+        }
+    }
+
+    publishHealth(identifiant, status) {
+        const clientId = 'a:' + org + ':' + apiKey;
         client = new paho.Client(org + '.messaging.internetofthings.ibmcloud.com', 8883, clientId);
 
         client.onConnectionLost = this.onConnectionLost;
         client.onMessageArrived = this.onMessageArrived;
 
-        // Connect client to publish payload
+        let topic = "iot-2/type/" + deviceType + "/id/" + identifiant + "/evt/health/fmt/json";
+        let payload = {
+            "health": status
+        }
+
         client.connect({
             onSuccess: function () {
                 let message = new paho.Message(JSON.stringify(payload));
-                message.destinationName = "iot-2/evt/"+ topic +"/fmt/json";
+                message.destinationName = topic;
 
                 try {
                     client.send(message);
@@ -39,8 +76,8 @@ class MedecinService {
                 }
             },
             onFailure: function() {console.log('Connection failed')},
-            userName: "use-token-auth",
-            password: user.password,
+            userName: apiKey,
+            password: apiToken,
             useSSL: true,
         });
     }
@@ -63,34 +100,6 @@ class MedecinService {
      */
     onMessageArrived(message) {
         console.log("onMessageArrived:" + message.payloadString);
-    }
-
-    getHealth() {
-        const clientId = 'a:' + org + ':' + apiKey;
-        client = new paho.Client(org + '.messaging.internetofthings.ibmcloud.com', 8883, clientId);
-
-        client.onConnectionLost = this.onConnectionLost;
-        client.onMessageArrived = this.onMessageArrived;
-
-        let topic = '';
-
-        client.connect({
-            onSuccess: function () {
-                try {
-                        topic = "iot-2/type/+/";
-                        client.subscribe(topic);
-                        console.log(topic + ' subscribe');
-                        console.log(client.subscribe(topic))
-                } catch (e) {
-                    console.log(e);
-                    console.log(topic + ' not subscribe');
-                }
-            },
-            onFailure: function() {console.log('Connection failed')},
-            userName: apiKey,
-            password: apiToken,
-            useSSL: true,
-        });
     }
 }
 export default new MedecinService();

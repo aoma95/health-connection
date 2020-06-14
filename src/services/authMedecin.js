@@ -9,6 +9,10 @@ class AuthAgentService {
                 identifiant: user.identifiant,
                 password: user.password,
                 role: user.role,
+            })
+            .then(response => {
+                console.log(response);
+                sessionStorage.setItem('user', JSON.stringify(user));
             });
     }
 }
