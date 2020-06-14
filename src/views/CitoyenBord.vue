@@ -150,6 +150,9 @@
                         console.log("Longitude : " + position.coords.longitude);
                     });
                 }
+            },
+            subscribeResult(message) {
+                console.log(message);
             }
         }
     }

@@ -97,6 +97,9 @@
                 } else {
                     MedecinService.publishHealth(id, value);
                 }
+            },
+            subscribeResult(message) {
+                console.log(message);
             }
         }
     }
