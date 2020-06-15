@@ -12,7 +12,7 @@ class AuthAgentService {
             })
             .then(response => {
                 console.log(response);
-                sessionStorage.setItem('user', JSON.stringify(user));
+                sessionStorage.setItem('medecin', JSON.stringify(user));
             });
     }
 }

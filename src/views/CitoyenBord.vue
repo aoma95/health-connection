@@ -132,13 +132,13 @@
         methods: {
             submit(value) {
                 if (value === 'temperature') {
-                    this.citoyen.pushTemperature(this.temperature);
+                    this.citoyen.publishTemperature(this.temperature);
                 }
                 if (value === 'postal_code') {
-                    this.citoyen.pushPostalCode(this.postal_code);
+                    this.citoyen.publishPostalCode(this.postal_code);
                 }
                 if (value === 'meeting') {
-                    this.citoyen.pushMeeting(this.meeting);
+                    this.citoyen.storeMeeting(this.meeting);
                     // Refresh meetings
                     this.rencontres = this.citoyen.getMeetings();
                 }
@@ -155,6 +155,12 @@
             },
             subscribeResult(message) {
                 console.log(message);
+                // Attribute health to its citoyen
+                for (let i = 0; i < this.rencontres.length; i++) {
+                    if (this.rencontres[i] === message.identifiant) {
+                        this.rencontres[i].health = message.health;
+                    }
+                }
             }
         }
     }

@@ -1,36 +1,34 @@
-import paho from 'paho-mqtt';
-const org = 'mbrym4';
-const deviceType = 'iot-client';
-const apiKey = 'a-mbrym4-5wqfprmqaw';
-const apiToken = '?nl*lfM5jdMKDp@1w8';
-let client;
+import UserService from "./user";
 
-// Get identified user
-const user = JSON.parse(sessionStorage.getItem('user'));
+export class MedecinService extends UserService {
 
-class MedecinService {
+    constructor() {
+        // Get identified user
+        const user = JSON.parse(sessionStorage.getItem('medecin'));
+
+        const api = {
+            key: 'a-mbrym4-5wqfprmqaw',
+            token: '?nl*lfM5jdMKDp@1w8'
+        };
+
+        super(
+            user,
+            api
+        );
+    }
 
     /**
      * Store a patient to local storage
      *
      * @param identifiant
      */
-    addPatient(identifiant) {
-        let currentPatients = JSON.parse(localStorage.getItem(user.identifiant));
-
-        if (currentPatients === null) {
-            console.log('Récupération lors ajout null');
-            currentPatients = [];
-        }
-
+    storePatient(identifiant) {
         let newPatient = {
             'identifiant': identifiant,
             'temperature': null,
             'health': null
         }
-        currentPatients.push(newPatient);
-
-        localStorage.setItem(user.identifiant, JSON.stringify(currentPatients));
+        this.storeItem(newPatient);
     }
 
     /**
@@ -39,8 +37,11 @@ class MedecinService {
      * @returns {{identifiant: string}[]|any}
      */
     getPatients() {
-        let patients = JSON.parse(localStorage.getItem(user.identifiant));
+        let patients = JSON.parse(localStorage.getItem(this.user.identifiant));
+
         if (patients !== null) {
+            console.log('sd');
+            this.subscribeHealthTemperature(patients);
             return patients;
         } else {
             console.log('Récupération null');
@@ -50,56 +51,34 @@ class MedecinService {
         }
     }
 
+    /**
+     * Publish citoyen's health
+     *
+     * @param identifiant   citoyen id
+     * @param status        health
+     */
     publishHealth(identifiant, status) {
-        const clientId = 'a:' + org + ':' + apiKey;
-        client = new paho.Client(org + '.messaging.internetofthings.ibmcloud.com', 8883, clientId);
-
-        client.onConnectionLost = this.onConnectionLost;
-        client.onMessageArrived = this.onMessageArrived;
-
-        let topic = "iot-2/type/" + deviceType + "/id/" + identifiant + "/evt/health/fmt/json";
         let payload = {
+            "identifiant" : identifiant,
             "health": status
         }
-
-        client.connect({
-            onSuccess: function () {
-                let message = new paho.Message(JSON.stringify(payload));
-                message.destinationName = topic;
-
-                try {
-                    client.send(message);
-                    console.log(topic + ' send');
-                } catch (e) {
-                    console.log(e);
-                    console.log(topic + ' not send');
-                }
-            },
-            onFailure: function() {console.log('Connection failed')},
-            userName: apiKey,
-            password: apiToken,
-            useSSL: true,
-        });
+        this.publishItem(false, "health", payload, identifiant);
     }
 
     /**
-     * Client lose connection to broker
+     * Subscribe to each patient's health and temperature
      *
-     * @param responseObject
+     * @param patients
      */
-    onConnectionLost(responseObject) {
-        if (responseObject.errorCode !== 0) {
-            console.log("onConnectionLost:" + responseObject.errorMessage);
+    subscribeHealthTemperature(patients) {
+        let users = [];
+
+        for (let i = 0; i < patients.length; i++) {
+            users[i] = patients[i].identifiant;
         }
-    }
 
-    /**
-     * Get message on subscribe
-     *
-     * @param message
-     */
-    onMessageArrived(message) {
-        console.log("onMessageArrived:" + message.payloadString);
+        this.storeItem(false, users, 'health');
+        this.storeItem(false, users, 'temperature');
     }
 }
-export default new MedecinService();
+// export default new MedecinService();

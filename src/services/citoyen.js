@@ -1,29 +1,20 @@
 import { UserService } from './user';
 
-const org = 'mbrym4';
-const apiKey = 'a-mbrym4-rdf3lojgwv';
-const apiToken = '5jq*9Dca6UBOQQhQpG';
-
-// Get identified user
-const user = JSON.parse(sessionStorage.getItem('user'));
-
 export class CitoyenService extends UserService {
 
     constructor() {
+        // Get identified user
+        const user = JSON.parse(sessionStorage.getItem('citoyen'));
+
         const api = {
-            key: apiKey,
-            token: apiToken
+            key: 'a-mbrym4-rdf3lojgwv',
+            token: '5jq*9Dca6UBOQQhQpG'
         };
+
         super(
             user,
-            org,
             api
         );
-        console.log(this.user);
-        console.log(this.org);
-        console.log(this.api);
-        console.log(this.appliClient);
-        console.log(this.deviceClient);
     }
 
     /**
@@ -31,7 +22,7 @@ export class CitoyenService extends UserService {
      *
      * @param temperature
      */
-    pushTemperature(temperature) {
+    publishTemperature(temperature) {
         let payload = {
             "t": temperature
         };
@@ -43,7 +34,7 @@ export class CitoyenService extends UserService {
      *
      * @param postal_code
      */
-    pushPostalCode(postal_code) {
+    publishPostalCode(postal_code) {
         let payload = {
             "pc": postal_code
         };
@@ -55,7 +46,7 @@ export class CitoyenService extends UserService {
      *
      * @param meeting
      */
-    pushMeeting(meeting){
+    storeMeeting(meeting){
         let today = new Date();
         let date = today.getFullYear() + '-' + (today.getMonth()+1) + '-' + today.getDate();
         let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
@@ -79,11 +70,11 @@ export class CitoyenService extends UserService {
      * @returns {{identifiant: string}[]|any}
      */
     getMeetings() {
-        let rencontres = JSON.parse(localStorage.getItem(user.identifiant));
+        let rencontres = JSON.parse(localStorage.getItem(this.user.identifiant));
 
         if (rencontres !== null) {
             console.log('sd');
-            this.getHealth(rencontres);
+            this.subscribeHealth(rencontres);
             return rencontres;
         } else {
             console.log('Récupération null');
@@ -98,7 +89,7 @@ export class CitoyenService extends UserService {
      *
      * @param rencontres
      */
-    getHealth(rencontres) {
+    subscribeHealth(rencontres) {
         let users = [];
 
         for (let i = 0; i < rencontres.length; i++) {

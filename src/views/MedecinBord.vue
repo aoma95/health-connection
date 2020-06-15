@@ -74,32 +74,51 @@
 
 <script>
     import { Rules } from "../module/rules";
-    import MedecinService from "../services/medecin";
+    import { MedecinService } from "../services/medecin";
     export default {
         components: {
 
         },
         data(){
             return {
+                medecin: new MedecinService(),
                 rules: new Rules(),
                 patients: null,
                 patient: null,
             }
         },
         created:function () {
-            this.patients = MedecinService.getPatients();
+            this.medecin.initClients();
+            this.patients = this.medecin.getPatients();
         },
         methods: {
             submit(value, id = null) {
                 if (value === 'patient') {
-                    MedecinService.addPatient(this.patient);
-                    this.patient = MedecinService.getPatients();
+                    this.medecin.storePatient(this.patient);
+                    this.patient = this.medecin.getPatients();
                 } else {
-                    MedecinService.publishHealth(id, value);
+                    this.medecin.publishHealth(id, value);
                 }
             },
             subscribeResult(message) {
                 console.log(message);
+                let keys = Object.keys(message);
+
+                // Attribute temparture or health to its patient
+                for (let i = 0; i < this.patients.length; i++) {
+
+                    if (this.patients[i].identifiant === message.identifiant) {
+
+                        // Set patient's temperature
+                        if (keys[1] === 'temperature') {
+                            this.patients[i].temperature = message.temperature;
+                        }
+                        // Set patient's health
+                        if (keys[1] === 'health') {
+                            this.patients[i].health = message.health;
+                        }
+                    }
+                }
             }
         }
     }

@@ -25,8 +25,7 @@ class AuthService {
                     password: user.password,
                     useSSL: true,
                 });
-                sessionStorage.setItem('user', JSON.stringify(user));
-                sessionStorage.setItem('client', JSON.stringify(client));
+                sessionStorage.setItem('citoyen', JSON.stringify(user));
             });
     }
 

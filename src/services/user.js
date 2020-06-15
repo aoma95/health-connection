@@ -4,14 +4,14 @@ import MedecinBord from "../views/MedecinBord";
 
 export class UserService {
 
-    constructor(user, org, api) {
+    constructor(user, api) {
         // Get current user
         this.user = user;
 
         // Set current api key and token
         this.api = api;
 
-        this.org = org;
+        this.org = 'mbrym4';
         this.deviceType = 'iot-client';
         this.appliClient = null;
         this.deviceClient = null;
@@ -57,10 +57,11 @@ export class UserService {
      * @param isDevice  Use application or current device
      * @param topic     Topic to publish
      * @param payload   Data to publish
+     * @param identifiant   Citoyen identifiant
      */
-    publishItem(isDevice, topic, payload) {
+    publishItem(isDevice, topic, payload, identifiant = null) {
         const client = isDevice ? this.deviceClient : this.appliClient;
-        const newTopic = "iot-2/evt/"+ topic +"/fmt/json";
+        const newTopic = "iot-2" + (isDevice ? "/evt/"+ topic +"/fmt/json" : "/type/" + this.deviceType + "/id/" + identifiant + "/evt/" + topic + "/fmt/json");
 
         client.connect({
             onSuccess: function () {
