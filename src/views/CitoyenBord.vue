@@ -105,7 +105,7 @@
 
 <script>
     import { Rules } from "../module/rules";
-    import CitoyenService from '../services/citoyen';
+    import { CitoyenService } from '../services/citoyen';
     import Meeting from "../models/meeting";
     export default {
         components: {
@@ -113,6 +113,7 @@
         },
         data(){
             return {
+                citoyen: new CitoyenService(),
                 rules: new Rules(),
                 temperature: null,
                 postal_code: null,
@@ -125,20 +126,21 @@
             }
         },
         created:function () {
-            this.rencontres = CitoyenService.getMeetings();
+            this.citoyen.initClients();
+            this.rencontres = this.citoyen.getMeetings();
         },
         methods: {
             submit(value) {
                 if (value === 'temperature') {
-                    CitoyenService.pushTemperature(this.temperature);
+                    this.citoyen.pushTemperature(this.temperature);
                 }
                 if (value === 'postal_code') {
-                    CitoyenService.pushPostalCode(this.postal_code);
+                    this.citoyen.pushPostalCode(this.postal_code);
                 }
                 if (value === 'meeting') {
-                    CitoyenService.pushMeeting(this.meeting);
+                    this.citoyen.pushMeeting(this.meeting);
                     // Refresh meetings
-                    this.rencontres = CitoyenService.getMeetings();
+                    this.rencontres = this.citoyen.getMeetings();
                 }
             },
             updateGPS() {

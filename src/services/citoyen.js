@@ -1,69 +1,29 @@
-import paho from 'paho-mqtt';
+import { UserService } from './user';
 
 const org = 'mbrym4';
-const deviceType = 'iot-client';
 const apiKey = 'a-mbrym4-rdf3lojgwv';
 const apiToken = '5jq*9Dca6UBOQQhQpG';
-let client;
 
 // Get identified user
 const user = JSON.parse(sessionStorage.getItem('user'));
 
-class CitoyenService {
+export class CitoyenService extends UserService {
 
-    /**
-     * Connection to publish
-     *
-     * @param topic
-     * @param payload
-     */
-    initConnection(topic, payload) {
-        // Create client
-        const clientId = 'd:' + org + ':' + deviceType + ':' + user.identifiant;
-        client = new paho.Client(org + '.messaging.internetofthings.ibmcloud.com', 8883, clientId);
-
-        client.onConnectionLost = this.onConnectionLost;
-        client.onMessageArrived = this.onMessageArrived;
-
-        // Connect client to publish payload
-        client.connect({
-            onSuccess: function () {
-                let message = new paho.Message(JSON.stringify(payload));
-                message.destinationName = "iot-2/evt/"+ topic +"/fmt/json";
-
-                try {
-                    client.send(message);
-                    console.log(topic + ' send');
-                } catch (e) {
-                    console.log(e);
-                    console.log(topic + ' not send');
-                }
-            },
-            onFailure: function() {console.log('Connection failed')},
-            userName: "use-token-auth",
-            password: user.password,
-            useSSL: true,
-        });
-    }
-
-    /**
-     * Client lose connection to broker
-     *
-     * @param responseObject
-     */
-    onConnectionLost(responseObject) {
-        if (responseObject.errorCode !== 0) {
-            console.log("onConnectionLost:" + responseObject.errorMessage);
-        }
-    }
-
-    /**
-     * Get message on subscribe
-     *
-     * @param message
-     */
-    onMessageArrived(message) {
-        console.log("onMessageArrived:" + message.payloadString);
+    constructor() {
+        const api = {
+            key: apiKey,
+            token: apiToken
+        };
+        super(
+            user,
+            org,
+            api
+        );
+        console.log(this.user);
+        console.log(this.org);
+        console.log(this.api);
+        console.log(this.appliClient);
+        console.log(this.deviceClient);
     }
 
     /**
@@ -75,7 +35,7 @@ class CitoyenService {
         let payload = {
             "t": temperature
         };
-        this.initConnection("temperature", payload);
+        this.publishItem(true, "temperature", payload);
     }
 
     /**
@@ -87,7 +47,7 @@ class CitoyenService {
         let payload = {
             "pc": postal_code
         };
-        this.initConnection("postalCode", payload);
+        this.publishItem(true, "postalCode", payload);
     }
 
     /**
@@ -96,13 +56,6 @@ class CitoyenService {
      * @param meeting
      */
     pushMeeting(meeting){
-        let currentMeetings = JSON.parse(localStorage.getItem(user.identifiant));
-
-        if (currentMeetings === null) {
-            console.log('Récupération lors ajout null');
-            currentMeetings = [];
-        }
-
         let today = new Date();
         let date = today.getFullYear() + '-' + (today.getMonth()+1) + '-' + today.getDate();
         let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
@@ -116,9 +69,8 @@ class CitoyenService {
             'description': meeting.description,
             'health': ''
         };
-        currentMeetings.push(newMeeting);
 
-        localStorage.setItem(user.identifiant, JSON.stringify(currentMeetings));
+        this.storeItem(newMeeting);
     }
 
     /**
@@ -128,7 +80,9 @@ class CitoyenService {
      */
     getMeetings() {
         let rencontres = JSON.parse(localStorage.getItem(user.identifiant));
+
         if (rencontres !== null) {
+            console.log('sd');
             this.getHealth(rencontres);
             return rencontres;
         } else {
@@ -145,32 +99,13 @@ class CitoyenService {
      * @param rencontres
      */
     getHealth(rencontres) {
-        const clientId = 'a:' + org + ':' + apiKey;
-        client = new paho.Client(org + '.messaging.internetofthings.ibmcloud.com', 8883, clientId);
+        let users = [];
 
-        client.onConnectionLost = this.onConnectionLost;
-        client.onMessageArrived = this.onMessageArrived;
+        for (let i = 0; i < rencontres.length; i++) {
+            users[i] = rencontres[i].identifiant;
+        }
 
-        let topic = '';
-
-        client.connect({
-            onSuccess: function () {
-                try {
-                    for (let i = 0; i < rencontres.length; i++) {
-                        topic = "iot-2/type/" + deviceType + "/id/" + rencontres[i].identifiant + "/evt/health/fmt/json";
-                        client.subscribe(topic);
-                        console.log(topic + ' subscribe');
-                    }
-                } catch (e) {
-                    console.log(e);
-                    console.log(topic + ' not subscribe');
-                }
-            },
-            onFailure: function() {console.log('Connection failed')},
-            userName: apiKey,
-            password: apiToken,
-            useSSL: true,
-        });
+        this.subscribeItem(false, users, 'health');
     }
 }
-export default new CitoyenService();
+// export default new CitoyenService();
