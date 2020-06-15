@@ -1,4 +1,4 @@
-import UserService from "./user";
+import { UserService } from "./user";
 
 export class MedecinService extends UserService {
 
