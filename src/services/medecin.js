@@ -1,6 +1,6 @@
 import { UserService } from "./user";
 
-export class MedecinService extends UserService {
+export class MedecinService {
 
     constructor() {
         // Get identified user
@@ -11,10 +11,17 @@ export class MedecinService extends UserService {
             token: '?nl*lfM5jdMKDp@1w8'
         };
 
-        super(
+        this.service = new UserService(
             user,
             api
         );
+    }
+
+    /**
+     * Init device or/and application clients
+     */
+    initClients(board) {
+        this.service.initClients(board);
     }
 
     /**
@@ -28,7 +35,7 @@ export class MedecinService extends UserService {
             'temperature': null,
             'health': null
         }
-        this.storeItem(newPatient);
+        this.service.storeItem(newPatient);
     }
 
     /**
@@ -37,7 +44,7 @@ export class MedecinService extends UserService {
      * @returns {{identifiant: string}[]|any}
      */
     getPatients() {
-        let patients = JSON.parse(localStorage.getItem(this.user.identifiant));
+        let patients = JSON.parse(localStorage.getItem(this.service.user.identifiant));
 
         if (patients !== null) {
             console.log('sd');
@@ -60,9 +67,9 @@ export class MedecinService extends UserService {
     publishHealth(identifiant, status) {
         let payload = {
             "identifiant" : identifiant,
-            "health": status
+            "hl": status
         }
-        this.publishItem(false, "health", payload, identifiant);
+        this.service.publishItem(false, "health", payload, identifiant);
     }
 
     /**
@@ -77,8 +84,7 @@ export class MedecinService extends UserService {
             users[i] = patients[i].identifiant;
         }
 
-        this.storeItem(false, users, 'health');
-        this.storeItem(false, users, 'temperature');
+        this.service.subscribeItem(false, users, ['health', 'temperature']);
     }
 }
 // export default new MedecinService();

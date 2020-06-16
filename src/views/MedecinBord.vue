@@ -38,15 +38,6 @@
                             <td><v-btn @click.stop="submit('negative', pat.identifiant)">Négatif</v-btn></td>
                             <td><v-btn @click.stop="submit('suspect', pat.identifiant)">Suspect</v-btn></td>
                         </tr>
-                            <!--
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td><v-btn @click.stop="submit('positive')">Positif</v-btn></td>
-                            <td><v-btn @click.stop="submit('negative')">Négatif</v-btn></td>
-                            <td><v-btn @click.stop="submit('suspect')">Suspect</v-btn></td>
-                        </tr>-->
                         </tbody>
                     </table>
                 </v-flex>
@@ -88,34 +79,35 @@
             }
         },
         created:function () {
-            this.medecin.initClients();
+            this.medecin.initClients(this);
             this.patients = this.medecin.getPatients();
         },
         methods: {
             submit(value, id = null) {
-                if (value === 'patient') {
+                if (value === 'patient' && this.patients !== "") {
+                    console.log('new patient');
                     this.medecin.storePatient(this.patient);
-                    this.patient = this.medecin.getPatients();
+                    this.patients = this.medecin.getPatients();
                 } else {
                     this.medecin.publishHealth(id, value);
                 }
             },
             subscribeResult(message) {
-                console.log(message);
-                let keys = Object.keys(message);
+                const data = JSON.parse(message.payloadString)
+                const keys = Object.keys(data);
 
-                // Attribute temparture or health to its patient
+                // Attribute temperature or health to its patient
                 for (let i = 0; i < this.patients.length; i++) {
 
-                    if (this.patients[i].identifiant === message.identifiant) {
+                    if (this.patients[i].identifiant === data.identifiant) {
 
                         // Set patient's temperature
-                        if (keys[1] === 'temperature') {
-                            this.patients[i].temperature = message.temperature;
+                        if (keys[1] === 't') {
+                            this.patients[i].temperature = data.t;
                         }
                         // Set patient's health
-                        if (keys[1] === 'health') {
-                            this.patients[i].health = message.health;
+                        if (keys[1] === 'hl') {
+                            this.patients[i].health = data.hl;
                         }
                     }
                 }

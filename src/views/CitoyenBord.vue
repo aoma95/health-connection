@@ -11,6 +11,36 @@
 
             <v-layout row justify-space-around="" class="mb-5">
                 <v-flex>
+                    <h2>Mes données personnelles</h2>
+                </v-flex>        
+            </v-layout>
+
+
+            <v-layout row justify-space-around="">
+                <v-flex xs8 md6>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">Température</th>
+                            <th scope="col">Etat de santé</th>
+                            <th scope="col">Code postal</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>{{ myTemp }}</td>
+                            <td>{{ myHealth }}</td>
+                            <td>{{ myCP }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </v-flex>
+            </v-layout>
+
+            <v-divider class="my-5"></v-divider>
+
+            <v-layout row justify-space-around="" class="mb-5">
+                <v-flex>
                     <h2>Mises à jour</h2>
                 </v-flex>
             </v-layout>
@@ -123,18 +153,24 @@
                 isGPS: false,
                 rencontres: null,
                 meeting: new Meeting('', '', '', '', '', ''),
+                myTemp: null,
+                myHealth: null,
+                myCP: null,
             }
         },
         created:function () {
-            this.citoyen.initClients();
+            this.citoyen.initClients(this);
+            //this.citoyen.subscribePersonalAttributes();
             this.rencontres = this.citoyen.getMeetings();
         },
         methods: {
             submit(value) {
                 if (value === 'temperature') {
+                    this.myTemp = this.temperature;
                     this.citoyen.publishTemperature(this.temperature);
                 }
                 if (value === 'postal_code') {
+                    this.myCP = this.postal_code;
                     this.citoyen.publishPostalCode(this.postal_code);
                 }
                 if (value === 'meeting') {
@@ -154,12 +190,28 @@
                 }
             },
             subscribeResult(message) {
-                console.log(message);
+                const data = JSON.parse(message.payloadString)
+                
+                let assign = false;
+
                 // Attribute health to its citoyen
                 for (let i = 0; i < this.rencontres.length; i++) {
-                    if (this.rencontres[i] === message.identifiant) {
-                        this.rencontres[i].health = message.health;
+
+                    if (this.rencontres[i].identifiant === data.identifiant) {
+                        this.rencontres[i].health = data.hl;
+                        
+                        if (data.hl === "positive") {
+                            this.myHealth = "suspect";
+                        }
+                        
+                        assign = true;
                     }
+                }
+
+                // Attribute health to connected user
+                if (! assign) {
+                    console.log(data);
+                    this.myHealth = data.hl;
                 }
             }
         }

@@ -1,6 +1,6 @@
 import paho from 'paho-mqtt';
 import CitoyenBord from "../views/CitoyenBord";
-import MedecinBord from "../views/MedecinBord";
+//import MedecinBord from "../views/MedecinBord";
 
 export class UserService {
 
@@ -13,6 +13,7 @@ export class UserService {
 
         this.org = 'mbrym4';
         this.deviceType = 'iot-client';
+        this.board = null;
         this.appliClient = null;
         this.deviceClient = null;
     }
@@ -20,14 +21,17 @@ export class UserService {
     /**
      * Init device or/and application clients
      */
-    initClients() {
+    initClients(board) {
+        this.board = board;
+
         // Initialize application client
         const appliClientId = 'a:' + this.org + ':' + this.api.key;
         this.appliClient = new paho.Client(this.org + ".messaging.internetofthings.ibmcloud.com", 8883, appliClientId);
 
         this.appliClient.onConnectionLost = this.onConnectionLost;
         // Return subscribe message in boards
-        this.appliClient.onMessageArrived = this.user.role === "citoyen" ? CitoyenBord.methods.subscribeResult : MedecinBord.methods.subscribeResult;
+        this.appliClient.onMessageArrived = this.board.subscribeResult;
+        //this.appliClient.onMessageArrived = this.user.role === "citoyen" ? CitoyenBord.methods.subscribeResult : MedecinBord.methods.subscribeResult;
 
         if (this.user.role === "citoyen") {
             const deviceClientId = 'd:' + this.org + ':' + this.deviceType + ':' + this.user.identifiant;
@@ -62,28 +66,40 @@ export class UserService {
     publishItem(isDevice, topic, payload, identifiant = null) {
         const client = isDevice ? this.deviceClient : this.appliClient;
         const newTopic = "iot-2" + (isDevice ? "/evt/"+ topic +"/fmt/json" : "/type/" + this.deviceType + "/id/" + identifiant + "/evt/" + topic + "/fmt/json");
+        
+        let message = new paho.Message(JSON.stringify(payload));
+        message.destinationName = newTopic;
 
-        client.connect({
-            onSuccess: function () {
-                let message = new paho.Message(JSON.stringify(payload));
-                message.destinationName = newTopic;
 
-                try {
-                    client.send(message);
-                    console.log(topic + ' send');
-                } catch (e) {
-                    console.log(e);
-                    console. log (topic + ' not send');
-                }
-                client.disconnect();
-            },
-            onFailure: function () {
-                console.log('Connection failed');
-            },
-            userName: isDevice ? "use-token-auth" : this.api.key,
-            password: isDevice ? this.user.password : this.api.token,
-            useSSL: true,
-        });
+        if (client.isConnected()) {
+
+            try {
+                client.send(message);
+                console.log(newTopic + ' send');
+            } catch (e) {
+                console.log(e);
+                console. log (newTopic + ' not send');
+            }
+        } else {
+            client.connect({
+                onSuccess: function () {
+                    
+                    try {
+                        client.send(message);
+                        console.log(newTopic + ' send');
+                    } catch (e) {
+                        console.log(e);
+                        console. log (newTopic + ' not send');
+                    }
+                },
+                onFailure: function () {
+                    console.log('Connection failed');
+                },
+                userName: isDevice ? "use-token-auth" : this.api.key,
+                password: isDevice ? this.user.password : this.api.token,
+                useSSL: true,
+            });
+        }    
     }
 
     /**
@@ -91,33 +107,58 @@ export class UserService {
      *
      * @param isDevice  Use application or current device
      * @param users     Users
-     * @param topic    Topic to subscribe
+     * @param topics    Topic to subscribe
      */
-    subscribeItem(isDevice, users, topic) {
+    subscribeItem(isDevice, users, topics) {
         const client = isDevice ? this.deviceClient : this.appliClient;
 
         let topicCompleted = '';
 
-        client.connect({
-            onSuccess: function () {
-                for (let i = 0; i < users.length; i++) {
+        const deviceType = this.deviceType;
+
+        if (client.isConnected()) {
+            for (let i = 0; i < users.length; i++) {
+    
+                for (let j = 0; j < topics.length; j++) {
+
                     try {
-                        topicCompleted = "iot-2/type/" + this.deviceType + "/id/" + users[i].identifiant + "/evt/" + topic + "/fmt/json";
+                        topicCompleted = "iot-2" + (isDevice ? "/evt/"+ topics[j] +"/fmt/json" : "/type/" + deviceType + "/id/" + users[i] + "/evt/" + topics[j] + "/fmt/json");
+                        //topicCompleted = "iot-2/type/" + deviceType + "/id/" + users[i] + "/evt/" + topics[j] + "/fmt/json";
                         client.subscribe(topicCompleted);
-                        console.log(topic + ' subscribe');
+                        console.log(topicCompleted + ' subscribe');
                     } catch (e) {
                         console.log(e);
-                        console.log(topic + ' not subscribe');
+                        console.log(topicCompleted + ' not subscribe');
                     }
                 }
-            },
-            onFailure: function () {
-                console.log('Connection failed');
-            },
-            userName: isDevice ? "use-token-auth" : this.api.key,
-            password: isDevice ? this.user.password : this.api.token,
-            useSSL: true,
-        });
+            }
+        } else {
+            client.connect({
+                onSuccess: function () {
+                    for (let i = 0; i < users.length; i++) {
+    
+                        for (let j = 0; j < topics.length; j++) {
+    
+                            try {
+                                topicCompleted = "iot-2" + (isDevice ? "/evt/"+ topics[j] +"/fmt/json" : "/type/" + deviceType + "/id/" + users[i] + "/evt/" + topics[j] + "/fmt/json");
+                                //topicCompleted = "iot-2/type/" + deviceType + "/id/" + users[i] + "/evt/" + topics[j] + "/fmt/json";
+                                client.subscribe(topicCompleted);
+                                console.log(topicCompleted + ' subscribe');
+                            } catch (e) {
+                                console.log(e);
+                                console.log(topicCompleted + ' not subscribe');
+                            }
+                        }
+                    }
+                },
+                onFailure: function () {
+                    console.log('Connection failed');
+                },
+                userName: isDevice ? "use-token-auth" : this.api.key,
+                password: isDevice ? this.user.password : this.api.token,
+                useSSL: true,
+            });
+        }
 
         // Plus tard (peut-être ;) ) reconnect: true,
     }

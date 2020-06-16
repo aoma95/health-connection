@@ -1,6 +1,6 @@
 import { UserService } from './user';
 
-export class CitoyenService extends UserService {
+export class CitoyenService {
 
     constructor() {
         // Get identified user
@@ -11,10 +11,17 @@ export class CitoyenService extends UserService {
             token: '5jq*9Dca6UBOQQhQpG'
         };
 
-        super(
+        this.service = new UserService(
             user,
             api
         );
+    }
+
+    /**
+     * Init device or/and application clients
+     */
+    initClients(board) {
+        this.service.initClients(board);
     }
 
     /**
@@ -24,9 +31,10 @@ export class CitoyenService extends UserService {
      */
     publishTemperature(temperature) {
         let payload = {
+            "identifiant": this.service.user.identifiant,
             "t": temperature
         };
-        this.publishItem(true, "temperature", payload);
+        this.service.publishItem(true, "temperature", payload);
     }
 
     /**
@@ -36,9 +44,10 @@ export class CitoyenService extends UserService {
      */
     publishPostalCode(postal_code) {
         let payload = {
+            "identifiant": this.service.user.identifiant,
             "pc": postal_code
         };
-        this.publishItem(true, "postalCode", payload);
+        this.service.publishItem(true, "postalCode", payload);
     }
 
     /**
@@ -61,7 +70,7 @@ export class CitoyenService extends UserService {
             'health': ''
         };
 
-        this.storeItem(newMeeting);
+        this.service.storeItem(newMeeting);
     }
 
     /**
@@ -70,7 +79,7 @@ export class CitoyenService extends UserService {
      * @returns {{identifiant: string}[]|any}
      */
     getMeetings() {
-        let rencontres = JSON.parse(localStorage.getItem(this.user.identifiant));
+        let rencontres = JSON.parse(localStorage.getItem(this.service.user.identifiant));
 
         if (rencontres !== null) {
             console.log('sd');
@@ -96,7 +105,9 @@ export class CitoyenService extends UserService {
             users[i] = rencontres[i].identifiant;
         }
 
-        this.subscribeItem(false, users, 'health');
+        users.push('antonycastaner');
+
+        this.service.subscribeItem(false, users, ['health']);
     }
 }
 // export default new CitoyenService();
