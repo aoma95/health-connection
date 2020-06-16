@@ -1,7 +1,7 @@
 import axios from 'axios';
 import paho from 'paho-mqtt';
 
-const API_URL =`http://health-connection.local:81`;
+const API_URL =`http://192.168.160.25:81`;
 const org = 'mbrym4';
 const deviceType = 'iot-client';
 
@@ -25,8 +25,7 @@ class AuthService {
                     password: user.password,
                     useSSL: true,
                 });
-                sessionStorage.setItem('user', JSON.stringify(user));
-                sessionStorage.setItem('client', JSON.stringify(client));
+                sessionStorage.setItem('citoyen', JSON.stringify(user));
             });
     }
 

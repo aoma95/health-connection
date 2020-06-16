@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL =`http://health-connection.local:81`;
+const API_URL =`http://192.168.160.25:81`;
 
 class AuthAgentService {
     login(user) {
@@ -9,6 +9,10 @@ class AuthAgentService {
                 identifiant: user.identifiant,
                 password: user.password,
                 role: user.role,
+            })
+            .then(response => {
+                console.log(response);
+                sessionStorage.setItem('medecin', JSON.stringify(user));
             });
     }
 }

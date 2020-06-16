@@ -149,6 +149,7 @@
                         console.log(resp);
                         this.message_success = 'Votre inscription est finalisée. Nous vous invitons à vous connecter !';
                         this.success = true;
+                        this.user = new User('', '', '');
                     }).catch(error => {
                         console.log(error);
                         this.message_error = 'Impossible de vous inscrire avec ses informations données';
@@ -172,7 +173,7 @@
                 store.dispatch('authMedecin/login', this.user).then(
                     resp => {
                         console.log(resp);
-                        // Route tableau bord médecin
+                        this.$router.push('/bord/medecin');
                     }).catch(error => {
                         console.log(error);
                         this.message_error = 'Impossible de vous connecter avec ces identifiants';

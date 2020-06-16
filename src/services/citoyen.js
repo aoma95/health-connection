@@ -1,69 +1,27 @@
-import paho from 'paho-mqtt';
+import { UserService } from './user';
 
-const org = 'mbrym4';
-const deviceType = 'iot-client';
-const apiKey = 'a-mbrym4-rdf3lojgwv';
-const apiToken = '5jq*9Dca6UBOQQhQpG';
-let client;
-let user;
+export class CitoyenService {
 
-class CitoyenService {
-
-    /**
-     * Connection to publish
-     *
-     * @param topic
-     * @param payload
-     */
-    initConnection(topic, payload) {
+    constructor() {
         // Get identified user
-        user = JSON.parse(sessionStorage.getItem('user'));
-        // Create client
-        const clientId = 'd:' + org + ':' + deviceType + ':' + user.identifiant;
-        client = new paho.Client(org + '.messaging.internetofthings.ibmcloud.com', 8883, clientId);
+        const user = JSON.parse(sessionStorage.getItem('citoyen'));
 
-        client.onConnectionLost = this.onConnectionLost;
-        client.onMessageArrived = this.onMessageArrived;
+        const api = {
+            key: 'a-mbrym4-rdf3lojgwv',
+            token: '5jq*9Dca6UBOQQhQpG'
+        };
 
-        // Connect client to publish payload
-        client.connect({
-            onSuccess: function () {
-                let message = new paho.Message(JSON.stringify(payload));
-                message.destinationName = "iot-2/evt/"+ topic +"/fmt/json";
-
-                try {
-                    client.send(message);
-                    console.log(topic + ' send');
-                } catch (e) {
-                    console.log(e);
-                    console.log(topic + ' not send');
-                }
-            },
-            onFailure: function() {console.log('Connection failed')},
-            userName: "use-token-auth",
-            password: user.password,
-            useSSL: true,
-        });
+        this.service = new UserService(
+            user,
+            api
+        );
     }
 
     /**
-     * Client lose connection to broker
-     *
-     * @param responseObject
+     * Init device or/and application clients
      */
-    onConnectionLost(responseObject) {
-        if (responseObject.errorCode !== 0) {
-            console.log("onConnectionLost:" + responseObject.errorMessage);
-        }
-    }
-
-    /**
-     * Get message on subscribe
-     *
-     * @param message
-     */
-    onMessageArrived(message) {
-        console.log("onMessageArrived:" + message.payloadString);
+    initClients(board) {
+        this.service.initClients(board);
     }
 
     /**
@@ -71,11 +29,12 @@ class CitoyenService {
      *
      * @param temperature
      */
-    pushTemperature(temperature) {
+    publishTemperature(temperature) {
         let payload = {
+            "identifiant": this.service.user.identifiant,
             "t": temperature
         };
-        this.initConnection("temperature", payload);
+        this.service.publishItem(true, "temperature", payload);
     }
 
     /**
@@ -83,11 +42,12 @@ class CitoyenService {
      *
      * @param postal_code
      */
-    pushPostalCode(postal_code) {
+    publishPostalCode(postal_code) {
         let payload = {
+            "identifiant": this.service.user.identifiant,
             "pc": postal_code
         };
-        this.initConnection("postalCode", payload);
+        this.service.publishItem(true, "postalCode", payload);
     }
 
     /**
@@ -95,14 +55,7 @@ class CitoyenService {
      *
      * @param meeting
      */
-    pushMeeting(meeting){
-        let currentMeetings = JSON.parse(localStorage.getItem('meetings'));
-
-        if (currentMeetings === null) {
-            console.log('Récupération lors ajout null');
-            currentMeetings = [];
-        }
-
+    storeMeeting(meeting){
         let today = new Date();
         let date = today.getFullYear() + '-' + (today.getMonth()+1) + '-' + today.getDate();
         let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
@@ -116,9 +69,8 @@ class CitoyenService {
             'description': meeting.description,
             'health': ''
         };
-        currentMeetings.push(newMeeting);
 
-        localStorage.setItem('meetings', JSON.stringify(currentMeetings));
+        this.service.storeItem(newMeeting);
     }
 
     /**
@@ -127,9 +79,11 @@ class CitoyenService {
      * @returns {{identifiant: string}[]|any}
      */
     getMeetings() {
-        let rencontres = JSON.parse(localStorage.getItem('meetings'));
+        let rencontres = JSON.parse(localStorage.getItem(this.service.user.identifiant));
+
         if (rencontres !== null) {
-            this.getHealth(rencontres);
+            console.log('sd');
+            this.subscribeHealth(rencontres);
             return rencontres;
         } else {
             console.log('Récupération null');
@@ -144,33 +98,16 @@ class CitoyenService {
      *
      * @param rencontres
      */
-    getHealth(rencontres) {
-        const clientId = 'a:' + org + ':' + apiKey;
-        client = new paho.Client(org + '.messaging.internetofthings.ibmcloud.com', 8883, clientId);
+    subscribeHealth(rencontres) {
+        let users = [];
 
-        client.onConnectionLost = this.onConnectionLost;
-        client.onMessageArrived = this.onMessageArrived;
+        for (let i = 0; i < rencontres.length; i++) {
+            users[i] = rencontres[i].identifiant;
+        }
 
-        let topic = '';
+        users.push('antonycastaner');
 
-        client.connect({
-            onSuccess: function () {
-                try {
-                    for (let i = 0; i < rencontres.length; i++) {
-                        topic = "iot-2/type/" + deviceType + "/id/" + rencontres[i].identifiant + "/evt/health/fmt/json";
-                        client.subscribe(topic);
-                        console.log(topic + ' subscribe');
-                    }
-                } catch (e) {
-                    console.log(e);
-                    console.log(topic + ' not subscribe');
-                }
-            },
-            onFailure: function() {console.log('Connection failed')},
-            userName: apiKey,
-            password: apiToken,
-            useSSL: true,
-        });
+        this.service.subscribeItem(false, users, ['health']);
     }
 }
-export default new CitoyenService();
+// export default new CitoyenService();
