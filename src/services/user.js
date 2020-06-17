@@ -1,12 +1,13 @@
 import paho from 'paho-mqtt';
 import CitoyenBord from "../views/CitoyenBord";
+import User from '../models/user';
 //import MedecinBord from "../views/MedecinBord";
 
 export class UserService {
 
     constructor(user, api) {
         // Get current user
-        this.user = user;
+        this.user = user === null ? new User('', '', '', '') : user;
 
         // Set current api key and token
         this.api = api;
@@ -117,38 +118,57 @@ export class UserService {
         const deviceType = this.deviceType;
 
         if (client.isConnected()) {
-            for (let i = 0; i < users.length; i++) {
+            if (users === null) {
+                try {
+                    topicCompleted = "iot-2/type/" + deviceType + "/id/+/evt/" + topics[0] + "/fmt/json";
+                    client.subscribe(topicCompleted);
+                    console.log(topicCompleted + ' subscribe');
+                } catch (e) {
+                    console.log(e);
+                    console.log(topicCompleted + ' not subscribe');
+                }
+            } else {
+                for (let i = 0; i < users.length; i++) {
     
-                for (let j = 0; j < topics.length; j++) {
-
-                    try {
-                        topicCompleted = "iot-2" + (isDevice ? "/evt/"+ topics[j] +"/fmt/json" : "/type/" + deviceType + "/id/" + users[i] + "/evt/" + topics[j] + "/fmt/json");
-                        //topicCompleted = "iot-2/type/" + deviceType + "/id/" + users[i] + "/evt/" + topics[j] + "/fmt/json";
-                        client.subscribe(topicCompleted);
-                        console.log(topicCompleted + ' subscribe');
-                    } catch (e) {
-                        console.log(e);
-                        console.log(topicCompleted + ' not subscribe');
+                    for (let j = 0; j < topics.length; j++) {
+    
+                        try {
+                            topicCompleted = "iot-2" + (isDevice ? "/evt/"+ topics[j] +"/fmt/json" : "/type/" + deviceType + "/id/" + users[i] + "/evt/" + topics[j] + "/fmt/json");
+                            client.subscribe(topicCompleted);
+                            console.log(topicCompleted + ' subscribe');
+                        } catch (e) {
+                            console.log(e);
+                            console.log(topicCompleted + ' not subscribe');
+                        }
                     }
                 }
             }
         } else {
             client.connect({
                 onSuccess: function () {
-                    for (let i = 0; i < users.length; i++) {
-    
-                        for (let j = 0; j < topics.length; j++) {
-    
-                            try {
-                                topicCompleted = "iot-2" + (isDevice ? "/evt/"+ topics[j] +"/fmt/json" : "/type/" + deviceType + "/id/" + users[i] + "/evt/" + topics[j] + "/fmt/json");
-                                //topicCompleted = "iot-2/type/" + deviceType + "/id/" + users[i] + "/evt/" + topics[j] + "/fmt/json";
-                                client.subscribe(topicCompleted);
-                                console.log(topicCompleted + ' subscribe');
-                            } catch (e) {
-                                console.log(e);
-                                console.log(topicCompleted + ' not subscribe');
-                            }
+                    if (users === null) {
+                        try {
+                            topicCompleted = "iot-2/type/" + deviceType + "/id/+/evt/" + topics[0] + "/fmt/json";                            client.subscribe(topicCompleted);
+                            console.log(topicCompleted + ' subscribe');
+                        } catch (e) {
+                            console.log(e);
+                            console.log(topicCompleted + ' not subscribe');
                         }
+                    } else {
+                        for (let i = 0; i < users.length; i++) {
+    
+                            for (let j = 0; j < topics.length; j++) {
+        
+                                try {
+                                    topicCompleted = "iot-2" + (isDevice ? "/evt/"+ topics[j] +"/fmt/json" : "/type/" + deviceType + "/id/" + users[i] + "/evt/" + topics[j] + "/fmt/json");
+                                    client.subscribe(topicCompleted);
+                                    console.log(topicCompleted + ' subscribe');
+                                } catch (e) {
+                                    console.log(e);
+                                    console.log(topicCompleted + ' not subscribe');
+                                }
+                            }
+                        }   
                     }
                 },
                 onFailure: function () {

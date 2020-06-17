@@ -3,7 +3,7 @@
         <v-container fluid>
             <v-layout row mb-5 justify-space-around="">
                 <v-flex>
-                    <h1>Tableau de bord</h1>
+                    <h1>Tableau de bord Médecin</h1>
                 </v-flex>
             </v-layout>
 

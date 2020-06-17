@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 import Home from '../views/Home.vue';
 import CitoyenBord from '../views/CitoyenBord';
 import MedecinBord from "../views/MedecinBord";
+import AdminBord from "../views/AdminBord";
 Vue.use(VueRouter);
 
 export const routes= [
@@ -20,6 +21,11 @@ export const routes= [
     path: '/bord/medecin',
     name: 'MedecinBord',
     component: MedecinBord
+  },
+  {
+    path: '/bord/admin',
+    name: 'AdminBord',
+    component: AdminBord
   }
 ];
 

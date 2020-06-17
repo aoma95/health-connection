@@ -190,7 +190,7 @@
                 }
             },
             subscribeResult(message) {
-                const data = JSON.parse(message.payloadString)
+                const data = JSON.parse(message.payloadString);
                 
                 let assign = false;
 

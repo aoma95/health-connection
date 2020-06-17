@@ -185,7 +185,7 @@
                 store.dispatch('authAdmin/login', this.user).then(
                     resp => {
                         console.log(resp);
-                        // Route tableau bord admin
+                        this.$router.push('/bord/admin');
                     }).catch(error => {
                         console.log(error);
                         this.message_error = 'Impossible de vous connecter avec ces identifiants';
