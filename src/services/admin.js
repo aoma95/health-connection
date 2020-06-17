@@ -1,11 +1,27 @@
-import axios from 'axios';
-import authHeader from './auth-header';
+import { UserService } from './user';
 
-const API_URL = `${process.env.VUE_APP_URL}/api/`;
+export class AdminService {
+    
+    constructor() {
 
-class AdminService {
-    bbla() {
-        return axios.get(API_URL + 'blabla', { headers: authHeader() });
+        const api = {
+            key: 'a-mbrym4-xgmqqzruab',
+            token: '&EI(1hsJwjeHnh@haa'
+        };
+
+        this.service = new UserService(
+            null,
+            api
+        );
+    }
+
+    initClients(board) {
+        this.service.initClients(board);
+    }
+
+    subscribePostalCode() {
+        
+        this.service.subscribeItem(false, null, ['postalCode']);
     }
 }
-export default new AdminService();
+//export default new AdminService();
