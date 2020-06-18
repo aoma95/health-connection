@@ -30,7 +30,7 @@
                         <tr v-if="patients[0].identifiant === 'Pas de patients enregistrés'">
                             <td colspan="6">{{ patients[0].identifiant }}</td>
                         </tr>
-                        <tr v-else v-for="pat in patients" :key="pat.identifiant">
+                        <tr v-else v-for="pat in patients" :key="pat.identifiant" v-bind:style="{ backgroundColor: color(pat.temperature), color: 'white' }">
                             <td>{{ pat.identifiant }}</td>
                             <td>{{ pat.temperature }}</td>
                             <td>{{ pat.health }}</td>
@@ -111,6 +111,10 @@
                         }
                     }
                 }
+            },
+            color(t) {
+                    let color = (t > 37.5 ) ? 'red' : 'green';
+                    return color;
             }
         }
     }
